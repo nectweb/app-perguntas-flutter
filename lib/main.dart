@@ -1,23 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:perguntas_e_respostas/questao.dart';
-import 'package:perguntas_e_respostas/respostas.dart';
+import 'package:perguntas_e_respostas/questonario.dart';
+import 'package:perguntas_e_respostas/resultado.dart';
 
 dynamic main() => runApp(_PerguntasApp());
 
 class _PerguntasState extends State<_PerguntasApp> {
   var _perguntaRespondida = 0;
+  var _pontuacaoTotal = 0;
   final List<Map<String, Object>> _perguntas = [
     {
       'texto': "Qual seu melhor amigo(a)?",
-      'respostas': ['Thomas', 'John', 'Leo', 'Tiago'],
+      'respostas': [
+        {'texto': 'Thomas', 'nota': 10},
+        {'texto': 'John', 'nota': 8},
+        {'texto': 'Leo', 'nota': 5},
+        {'texto': 'Tiago', 'nota': 1},
+      ],
     },
     {
       'texto': "Qual seu animal favorito?",
-      'respostas': ['Gato', 'Leão', 'Tigre', 'Zebra'],
+      'respostas': [
+        {'texto': 'Gato', 'nota': 10},
+        {'texto': 'Leão', 'nota': 8},
+        {'texto': 'Tigre', 'nota': 5},
+        {'texto': 'Zebra', 'nota': 2},
+      ],
     },
     {
       'texto': "Qual sua comida favorita?",
-      'respostas': ['Bacon', 'Bolacha', 'Pipoca', 'Macarrão'],
+      'respostas': [
+        {'texto': 'Bacon', 'nota': 10},
+        {'texto': 'Bolacha', 'nota': 7},
+        {'texto': 'Pipoca', 'nota': 6},
+        {'texto': 'Macarrão', 'nota': 4},
+      ],
     },
   ];
 
@@ -31,12 +47,18 @@ class _PerguntasState extends State<_PerguntasApp> {
 
   final List<Widget> respostas = [];
 
-  void _resposta(String resp) {
-    if (temPerguntaSelecionado) {
-      setState(() {
-        _perguntaRespondida++;
-      });
-    }
+  void _resposta(int nota) {
+    setState(() {
+      _perguntaRespondida++;
+      _pontuacaoTotal += nota;
+    });
+  }
+
+  void _reniciarQuestionario() {
+    setState(() {
+      _perguntaRespondida = 0;
+      _pontuacaoTotal = 0;
+    });
   }
 
   bool get temPerguntaSelecionado {
@@ -49,16 +71,15 @@ class _PerguntasState extends State<_PerguntasApp> {
       home: Scaffold(
         appBar: AppBar(title: Text('Perguntas')),
         body: temPerguntaSelecionado
-            ? Column(
-                children: [
-                  Questao(_perguntas[_perguntaRespondida]['texto'].toString()),
-                  for (String textoResp
-                      in _perguntas[_perguntaRespondida]['respostas']
-                          as List<String>)
-                    Respostas(textoResp, () => _resposta(textoResp)),
-                ],
+            ? Questonario(
+                perguntas: _perguntas,
+                perguntaRespondida: _perguntaRespondida,
+                quandoRespondido: _resposta,
               )
-            : Center(child: Text('Parabéns!!', style: TextStyle(fontSize: 18))),
+            : Resultado(
+                notaFinal: _pontuacaoTotal,
+                quandoReniciarQuestionario: _reniciarQuestionario,
+              ),
       ),
     );
   }
